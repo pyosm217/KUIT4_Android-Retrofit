@@ -20,7 +20,7 @@ class RVPopularMenuAdapter(
         fun bind(item: MenuData) {
             //binding.sivCategoryImg.setImageResource(R.drawable.img_barbeque)
             binding.tvPopularMenuName.text = item.menuName
-            binding.tvPopularMenuTime.text = item.menuTime
+            binding.tvPopularMenuTime.text = item.menuTime.toString()+"분"
             binding.tvPopularMenuRate.text = item.menuRate.toString()
 
 
