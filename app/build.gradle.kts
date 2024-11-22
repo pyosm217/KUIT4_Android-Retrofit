@@ -1,7 +1,18 @@
+import java.io.FileInputStream
+import java.util.Properties
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("kotlin-kapt")
+}
+
+val properties = Properties().apply {
+    val localPropertiesFile = project.rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        load(FileInputStream(localPropertiesFile))
+    } else {
+        println("local.properties 파일을 찾을 수 없습니다. 기본 값을 사용합니다.")
+    }
 }
 
 android {
@@ -16,10 +27,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val baseUrl = properties.getProperty("BASE_URL", "http://default-url.com")
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
     }
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     buildTypes {
         release {
