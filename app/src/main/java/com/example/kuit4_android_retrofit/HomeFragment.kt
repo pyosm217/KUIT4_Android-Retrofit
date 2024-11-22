@@ -1,31 +1,27 @@
 package com.example.kuit4_android_retrofit
 
 import RVPopularMenuAdapter
-import android.content.Context
-import android.content.SharedPreferences
-import android.os.Build.VERSION_CODES.P
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.kuit4_android_retrofit.data.CategoryData
+import com.example.kuit4_android_retrofit.data.MenuData
 import com.example.kuit4_android_retrofit.databinding.FragmentHomeBinding
 import com.example.kuit4_android_retrofit.databinding.ItemCategoryBinding
 import com.example.kuit4_android_retrofit.retrofit.RetrofitObject
 import com.example.kuit4_android_retrofit.retrofit.service.CategoryService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.kuit4_android_retrofit.retrofit.service.MenuService
 import retrofit2.Call
 import retrofit2.Response
 
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
+    private lateinit var rvAdapter : RVPopularMenuAdapter
 
 
     override fun onCreateView(
@@ -36,6 +32,7 @@ class HomeFragment : Fragment() {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
 
         fetchCategoryInto()
+        fatchmenuInto()
 
         return binding.root
     }
@@ -72,6 +69,38 @@ class HomeFragment : Fragment() {
         )
     }
 
+    private fun fatchmenuInto() {
+        val service = RetrofitObject.retrofit.create(MenuService::class.java)
+        val call = service.getMenu()
+
+        call.enqueue(
+            object : retrofit2.Callback<List<MenuData>> {
+                override fun onResponse(
+                    call: Call<List<MenuData>>,
+                    response: Response<List<MenuData>>
+                ) {
+                    if (response.isSuccessful) {
+                        val menuResponse = response.body()
+
+                        //데이터가 성공적으로 받아와졌을 때
+                        if (!menuResponse.isNullOrEmpty()) {
+                            showMenuInfo(menuResponse)
+                        } else {
+                            Log.d("실패1", "실패1") //빈값을 받아온 경우
+                        }
+                    } else {
+                        Log.d("실패2", "실패2") //서버 응답이 실패했을 때 (상태코드 5**)
+                    }
+                }
+
+                override fun onFailure(call: Call<List<MenuData>>, t: Throwable) {
+                    Log.d("실패3", "실패3") //네트워크 오류
+                }
+
+            }
+        )
+    }
+
     private fun showCategoryInfo(categoryList: List<CategoryData>) {
         // 레이아웃 인플레이터를 사용해 카테고리 항목을 동적으로 추가
         val inflater = LayoutInflater.from(requireContext())
@@ -92,6 +121,15 @@ class HomeFragment : Fragment() {
             // 레이아웃에 카테고리 항목 추가
             binding.llMainMenuCategory.addView(categoryBinding.root)
         }
+    }
+
+    private fun showMenuInfo(menuList : List<MenuData>) {
+
+        rvAdapter = RVPopularMenuAdapter(requireContext(), menuList)
+        binding.rvMainPopularMenus.adapter = rvAdapter
+        //binding.rvMainPopularMenus.layoutManager = LinearLayoutManager(context,LinearLayoutManager.VERTICAL, false)
+        binding.rvMainPopularMenus.layoutManager = LinearLayoutManager(context)
+
     }
 
 }
