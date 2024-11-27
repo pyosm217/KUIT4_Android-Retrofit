@@ -1,19 +1,12 @@
-import java.io.FileInputStream
 import java.util.Properties
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("kotlin-kapt")
 }
-
-val properties = Properties().apply {
-    val localPropertiesFile = project.rootProject.file("local.properties")
-    if (localPropertiesFile.exists()) {
-        load(FileInputStream(localPropertiesFile))
-    } else {
-        println("local.properties 파일을 찾을 수 없습니다. 기본 값을 사용합니다.")
-    }
-}
+val properties = Properties()
+val propertiesFile = project.rootProject.file("local.properties") // 속성 파일 경로
+properties.load(propertiesFile.inputStream())
 
 android {
     namespace = "com.example.kuit4_android_retrofit"
@@ -28,8 +21,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val baseUrl = properties.getProperty("BASE_URL", "http://default-url.com")
-        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
+        val baseUrl = properties["BASE_URL"]?.toString() ?: "https://default-url.com/"
+        buildConfigField("String", "BASE_URL", baseUrl)
     }
 
     buildFeatures {
