@@ -13,6 +13,7 @@ import com.example.kuit4_android_retrofit.databinding.ItemPopularMenuBinding
 class RVPopularMenuAdapter(
     private val context : Context,
     private val menuList: List<MenuData>,
+    private val onItemClick: (MenuData) -> Unit // 클릭 리스너
 ) : RecyclerView.Adapter<RVPopularMenuAdapter.ViewHolder>() {
     inner class ViewHolder(
         private val binding: ItemPopularMenuBinding,
@@ -44,6 +45,9 @@ class RVPopularMenuAdapter(
         position: Int,
     ) {
         holder.bind(menuList[position])
+        holder.itemView.setOnClickListener {
+            onItemClick(menuList[position])
+        }
     }
 
     override fun getItemCount(): Int = menuList.size

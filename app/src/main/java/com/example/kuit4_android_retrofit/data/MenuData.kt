@@ -5,4 +5,5 @@ data class MenuData(
     val menuName : String,
     val menuTime : Int,
     val menuRate : Double,
+    val id : String,
 )
